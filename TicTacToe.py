@@ -1,6 +1,6 @@
 import os
 from ask_user import ask_user as a_s
-from random import randint
+from random import randint, randrange  
 from time import sleep
 
 #initialising the board
@@ -42,21 +42,49 @@ class Board:
 
     def reset_board(self):
         self.boxs = [' '] * 10
-    
-    def ai_game(self, key):
-        #immediately places in the middle if its open
-        if self.boxs[5] == ' ':
-            self.update_box(5,key)
-        elif self.boxs[5] != ' ':
-            while True:
-                box_num = randint(1,9)
-                if self.boxs[box_num] == ' ':
-                    self.update_box(box_num, key)
-                    break
-                else:
-                    continue
 
 board = Board()
+
+def select_number(board_ai):
+    ln = len(board_ai)
+    r = randrange(0 ,ln)
+    return board_ai[r]
+
+def ai_game(key):
+    global box_num
+    available_move = [moves for moves, letter in enumerate(board.boxs) if letter == ' ' and moves != 0]
+    box_num = 0
+    #Check if theres a possibility to win
+    for key in ['X','O']:
+        for i in available_move:
+            copy_board = board.boxs[:]
+            copy_board[i] = key
+            if board.win_solution('O'):
+                box_num = i
+                return box_num
+    
+    #To take the middle
+    if board.boxs[5] == ' ':
+        board.update_box(5,key)
+    else:
+        #Check for the corners(Top, bottom of right and left)
+        available_corners = []
+        for i in available_move:
+            if i in [1,3,7,9]:
+                available_corners.append(i)  
+        if len(available_corners) > 0:
+            box_num = select_number(available_corners)
+            return box_num
+
+        #Check for the edges(Middle of the sides)
+        available_sides = []
+        for i in available_move:
+            if i in [2,4,6,8]:
+                available_corners.append(i)  
+        if len(available_sides) > 0:
+            box_num = select_number(available_sides)
+        return box_num
+
 
 m = 0
 #Introduction 
@@ -103,110 +131,112 @@ def choice_game():
             print("Enter 1 or 2 only")
             continue
 
-if __name__ == "__main__":
-    while True:
-        choice_game()
-    #Multiplayer
-        if choice == 1:
-            turn = randint(0,1)
-            while True:
-                if turn == 1:
-                    #Updates the board after input
-                    clear_screen()
+while True:
+    choice_game()
+#Multiplayer
+    if choice == 1:
+        turn = randint(0,1)
+        while True:
+            if turn == 1:
+                #Updates the board after input
+                clear_screen()
 
-                    #For X Player
-                    x_move = a_s('X, Choose a position between 1 - 9 : ',int)
+                #For X Player
+                x_move = a_s('X, Choose a position between 1 - 9 : ',int)
 
-                    #Put x input into the board
-                    board.update_box(x_move, "X")
-                    turn = 0
-                    #Updates the board after input
-                    clear_screen()
-                    #Check for win for X or tie
-                    if board.win_solution("X"):
-                        print('Congrats, X you have won')
-                        turn = 3
-                    elif board.tie_game():
-                        print('This is a tie game')
-                        turn = 3
+                #Put x input into the board
+                board.update_box(x_move, "X")
+                turn = 0
+                #Updates the board after input
+                clear_screen()
+                #Check for win for X or tie
+                if board.win_solution("X"):
+                    print('Congrats, X you have won')
+                    turn = 3
+                elif board.tie_game():
+                    print('This is a tie game')
+                    turn = 3
 
-                elif turn == 0: 
-                    clear_screen()
-                    #For O Player
-                    o_move = a_s('O, Choose a position between 1 - 9 : ',int)
-                    #Put o input into the board
-                    board.update_box(o_move, "O")
-                    turn = 1
-                    #Updates the board after input
-                    clear_screen()
+            elif turn == 0: 
+                clear_screen()
+                #For O Player
+                o_move = a_s('O, Choose a position between 1 - 9 : ',int)
+                #Put o input into the board
+                board.update_box(o_move, "O")
+                turn = 1
+                #Updates the board after input
+                clear_screen()
 
-                    #Check for win for O or tie
-                    if board.win_solution("O"):
-                        print('Congrats, O you have won')
-                        turn = 3
-                    elif board.tie_game():
-                        print('This is a tie game')
-                        turn = 3
+                #Check for win for O or tie
+                if board.win_solution("O"):
+                    print('Congrats, O you have won')
+                    turn = 3
+                elif board.tie_game():
+                    print('This is a tie game')
+                    turn = 3
 
-                else:
-                 while True:
-                        p_again = a_s('Do you want to play again? (Y/N) : ').upper()
-                        if p_again == "Y":
-                            board.reset_board()
-                            turn = randint(0,1)
-                            break
-                        elif p_again == "N":
-                            exit('Game is over')
-                        else:
-                            continue
-    #Single Player
-        else:
-            turn = randint(0,1)
-            while True:
-                if turn == 1:
-                    #Updates the board after input
-                    clear_screen_ai()
+            else:
+                while True:
+                    p_again = a_s('Do you want to play again? (Y/N) : ').upper()
+                    if p_again == "Y":
+                        board.reset_board()
+                        turn = randint(0,1)
+                        break
+                    elif p_again == "N":
+                        exit('Game is over')
+                    else:
+                        continue
+                break
+          
+#Single Player
+    else:
+        turn = randint(0,1)
+        while True:
+            if turn == 1:
+                #Updates the board after input
+                clear_screen_ai()
 
-                    #For X Player
-                    x_move = a_s('X, Choose a position between 1 - 9 : ',int)
-                    #Put x input into the board
-                    board.update_box(x_move, "X")
-                    turn = 0
-                    #Updates the board after input
-                    clear_screen_ai()
-                    #Check for win for X or tie
-                    if board.win_solution("X"):
-                        print('Congrats, X you have won')
-                        turn = 3
-                    elif board.tie_game():
-                        print('This is a tie game')
-                        turn = 3
+                #For X Player
+                x_move = a_s('X, Choose a position between 1 - 9 : ',int)
+                #Put x input into the board
+                board.update_box(x_move, "X")
+                turn = 0
+                #Updates the board after input
+                clear_screen_ai()
+                #Check for win for X or tie
+                if board.win_solution("X"):
+                    print('Congrats, X you have won')
+                    turn = 3
+                elif board.tie_game():
+                    print('This is a tie game')
+                    turn = 3
 
-                elif turn == 0: 
-                    clear_screen_ai()
-                    #For O Player
-                    board.ai_game("O")
-                    
-                    turn = 1
-                    #Updates the board after input
-                    clear_screen_ai()
+            elif turn == 0: 
+                clear_screen_ai()
+                #For O Player
+                ai_game('O')
+                board.boxs[box_num] = 'O'
+                turn = 1
+                #Updates the board after input
+                clear_screen_ai()
 
-                    #Check for win for O or tie
-                    if board.win_solution("O"):
-                        print('You lose to the AI')
-                        turn = 3
-                    elif board.tie_game():
-                        print('This is a tie game')
-                        turn = 3
+                #Check for win for O or tie
+                if board.win_solution("O"):
+                    print('You lose to the AI')
+                    turn = 3
+                elif board.tie_game():
+                    print('This is a tie game')
+                    turn = 3
 
-                else:
-                    while True:
-                        p_again = a_s('Do you want to play again? (Y/N) : ').upper()
-                        if p_again == "Y":
-                            board.reset_board()
-                            turn = randint(0,1)
-                            break
-                        elif p_again == "N":
-                            exit('Game is over')
-                        else:
-                            continue
+            else:
+                while True:
+                    p_again = a_s('Do you want to play again? (Y/N) : ').upper()
+                    if p_again == "Y":
+                        board.reset_board()
+                        turn = randint(0,1)
+                        break
+                    elif p_again == "N":
+                        exit('Game is over')
+                    else:
+                        continue
+                break
