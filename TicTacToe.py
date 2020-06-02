@@ -31,8 +31,88 @@ class Board:
             (self.boxs[1] == key and self.boxs[5] == key and self.boxs[9] == key) or\
             (self.boxs[3] == key and self.boxs[5] == key and self.boxs[7] == key):
             return True
-        return False
-
+        else:
+            return False
+        
+    def ai_win_sol(self,boxs):
+        global box_num
+        box_num = 0
+        #horizontal
+        if ((self.boxs[1] == self.boxs[2] != ' ') and self.boxs[3] == ' '):
+            box_num = 3
+            
+        elif ((self.boxs[4] == self.boxs[5] != ' ') and self.boxs[6] == ' '):
+            box_num = 6
+            
+        elif ((self.boxs[7] == self.boxs[8] != ' ') and self.boxs[9] == ' '):
+            box_num = 9
+            
+        elif ((self.boxs[1] == self.boxs[3] != ' ') and self.boxs[2] == ' '):
+            box_num = 2
+            
+        elif ((self.boxs[4] == self.boxs[6] != ' ') and self.boxs[5] == ' '):
+            box_num = 5
+            
+        elif ((self.boxs[7] == self.boxs[9] != ' ') and self.boxs[8] == ' '):
+            box_num = 8
+            
+        elif ((self.boxs[2] == self.boxs[3] != ' ') and self.boxs[1] == ' '):
+            box_num = 1
+            
+        elif ((self.boxs[5] == self.boxs[6] != ' ') and self.boxs[4] == ' '):
+            box_num = 4
+            
+        elif ((self.boxs[8] == self.boxs[9] != ' ') and self.boxs[7] == ' '):
+            box_num = 7
+            
+        #vertical
+        elif ((self.boxs[1] == self.boxs[4] != ' ') and self.boxs[7] == ' '):
+            box_num = 7
+            
+        elif ((self.boxs[2] == self.boxs[5] != ' ') and self.boxs[8] == ' '):
+            box_num = 8
+            
+        elif ((self.boxs[3] == self.boxs[6] != ' ') and self.boxs[9] == ' '):
+            box_num = 9
+            
+        elif ((self.boxs[1] == self.boxs[7] != ' ') and self.boxs[4] == ' '):
+            box_num = 4
+            
+        elif ((self.boxs[2] == self.boxs[8] != ' ') and self.boxs[5] == ' '):
+            box_num = 5
+            
+        elif ((self.boxs[3] == self.boxs[9] != ' ') and self.boxs[6] == ' '):
+            box_num = 6
+            
+        elif ((self.boxs[4] == self.boxs[7] != ' ') and self.boxs[1] == ' '):
+            box_num = 1
+            
+        elif ((self.boxs[6] == self.boxs[9] != ' ') and self.boxs[3] == ' '):
+            box_num = 3
+            
+        elif ((self.boxs[5] == self.boxs[8] != ' ') and self.boxs[2] == ' '):
+            box_num = 2
+            
+        #Cross
+        elif ((self.boxs[1] == self.boxs[5] != ' ') and self.boxs[9] == ' '):
+            box_num = 9
+            
+        elif ((self.boxs[1] == self.boxs[9] != ' ') and self.boxs[5] == ' '):
+            box_num = 5
+            
+        elif ((self.boxs[5] == self.boxs[9] != ' ') and self.boxs[1] == ' '):
+            box_num = 1
+            
+        elif ((self.boxs[3] == self.boxs[5] != ' ') and self.boxs[7] == ' '):
+            box_num = 7
+            
+        elif ((self.boxs[5] == self.boxs[7] != ' ') and self.boxs[3] == ' '):
+            box_num = 3
+            
+        elif ((self.boxs[7] == self.boxs[3] != ' ') and self.boxs[5] == ' '):
+            box_num = 5
+        return box_num
+        
     def tie_game(self):
         count = 0
         for i in self.boxs:
@@ -46,47 +126,15 @@ class Board:
 board = Board()
 
 def select_number(board_ai):
+    global r
     ln = len(board_ai)
     r = randrange(0 ,ln)
     return board_ai[r]
 
-def ai_game():
-    global box_num
-    #To find out the possible move 
-    available_move = []
-    for x, letter in enumerate(board.boxs):
-        if letter == ' ' and x != 0:
-            available_move.append(x)
-    box_num = 0
-    #To find out if the move its possible to win
-    for key in ['X','O']:
-        for i in available_move:
-            dupe_board = board.boxs[:]
-            dupe_board[i] = key
-            if board.win_solution(dupe_board, key):
-                box_num = i
-                return box_num
-    #Places in the middle if its open
-    if board.boxs[5] == ' ':
-        box_num = 5
-        return box_num
-    #Looks for corner
-    corner_move = []
-    for i in available_move:
-        if i in [1,3,7,9]:
-            corner_move.append(i)
-    if len(corner_move) > 0:
-        box_num = select_number(corner_move)
-        return box_num
-    #Looks for middle sides
-    mid_sides_move = []
-    for i in available_move:
-        if i in [2,4,6,8]:
-            mid_sides_move.append(i)
-    if len(mid_sides_move) > 0:
-        box_num = select_number(mid_sides_move)
-        return box_num
-
+def comp_auto_move():
+    available_move = [x for x, letter in enumerate(board.boxs) if letter == ' ' and x != 0]
+    select_number(available_move)
+    board.boxs[r] = 'O'
 m = 0
 #Introduction 
 def clear_screen():
@@ -118,7 +166,6 @@ def clear_screen_ai():
 
     #Displays the board
     board.display()
-
 #To let the user choose either single or multiplayer
 def choice_game():
     while True:
@@ -182,13 +229,13 @@ while True:
                     if p_again == "Y":
                         board.reset_board()
                         turn = randint(0,1)
+                        m = 0
                         break
                     elif p_again == "N":
                         exit('Game is over')
                     else:
                         continue
                 break
-          
 #Single Player
     else:
         turn = randint(0,1)
@@ -196,7 +243,6 @@ while True:
             if turn == 1:
                 #Updates the board after input
                 clear_screen_ai()
-
                 #For X Player
                 x_move = a_s('X, Choose a position between 1 - 9 : ',int)
                 #Put x input into the board
@@ -204,6 +250,7 @@ while True:
                 turn = 0
                 #Updates the board after input
                 clear_screen_ai()
+                box_num = 0
                 #Check for win for X or tie
                 if board.win_solution(board.boxs,"X"):
                     print('Congrats, X you have won')
@@ -214,13 +261,15 @@ while True:
 
             elif turn == 0: 
                 clear_screen_ai()
-                #For O Player
-                ai_game()
-                board.boxs[box_num] = 'O'
+                board.ai_win_sol(board.boxs)
+                if box_num != 0:
+                    board.boxs[box_num] = 'O'
+                else:  
+                    comp_auto_move()
                 turn = 1
+                
                 #Updates the board after input
                 clear_screen_ai()
-
                 #Check for win for O or tie
                 if board.win_solution(board.boxs,"O"):
                     print('You lose to the AI')
@@ -235,6 +284,7 @@ while True:
                     if p_again == "Y":
                         board.reset_board()
                         turn = randint(0,1)
+                        m = 0
                         break
                     elif p_again == "N":
                         exit('Game is over')
