@@ -111,6 +111,8 @@ class Board:
             
         elif ((self.boxs[7] == self.boxs[3] != ' ') and self.boxs[5] == ' '):
             box_num = 5
+        else:
+            box_num = 0
         return box_num
         
     def tie_game(self):
